@@ -35,6 +35,9 @@ class ModelBuildException(EmotionClassifierException):
 class UtilsException(EmotionClassifierException):
     pass
 
+class PredictionException(EmotionClassifierException):
+    pass
+
 
         
 
