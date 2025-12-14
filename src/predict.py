@@ -7,13 +7,12 @@ from src.tokenizer import load_tokenizer, pad_sequences_fn
 from src.exception.exception import PredictionException
 
 
-# Configurations
 
 MODEL_PATH = "saved_models/birnn_model.h5"
 TOKENIZER_PATH = "saved_models/tokenizer.pkl"
 
 MAX_SEQUENCE_LENGTH = 100
-THRESHOLD = 0.5
+TOP_K = 3   # <-- Top 3 emotions
 
 
 EMOTION_LABELS = [
@@ -26,12 +25,9 @@ EMOTION_LABELS = [
 ]
 
 
-# Load Model and Tokenizer
-
 try:
     model = load_model(MODEL_PATH)
     tokenizer = load_tokenizer(TOKENIZER_PATH)
-
 except Exception as e:
     raise PredictionException(
         error_message="Error loading model or tokenizer",
@@ -40,14 +36,23 @@ except Exception as e:
 
 
 
-# Prediction Function
+
+def get_top_k_emotions(predictions, labels, k=3):
+    """
+    Returns top-k emotions sorted by confidence.
+    """
+    emotion_scores = list(zip(labels, predictions))
+    emotion_scores.sort(key=lambda x: x[1], reverse=True)
+    return emotion_scores[:k]
+
+
 
 def predict_emotions(text: str):
     try:
         if not text.strip():
             raise ValueError("Empty input text")
 
-        # 1. Preprocess
+        # 1. Clean text
         cleaned_text = clean_text(text)
 
         # 2. Tokenize
@@ -60,21 +65,24 @@ def predict_emotions(text: str):
         )
 
         # 4. Predict
-        preds = model.predict(padded)[0]
+        predictions = model.predict(padded, verbose=0)[0]
 
-        # 5. Decode predictions
-        results = {}
-        for idx, score in enumerate(preds):
-            if score >= THRESHOLD:
-                results[EMOTION_LABELS[idx]] = float(score)
+        # 5. Get top-k emotions
+        top_emotions = get_top_k_emotions(
+            predictions,
+            EMOTION_LABELS,
+            k=TOP_K
+        )
 
-        return results
+        return top_emotions
 
     except Exception as e:
         raise PredictionException(
             error_message="Error during prediction",
             error_detail=sys
         ) from e
+
+
 
 if __name__ == "__main__":
     print("\nEmotion Classifier (type 'q' to quit)\n")
@@ -85,12 +93,9 @@ if __name__ == "__main__":
         if text.lower() == "q":
             break
 
-        emotions = predict_emotions(text)
+        results = predict_emotions(text)
 
-        if not emotions:
-            print("\nNo strong emotions detected.\n")
-        else:
-            print("\nPredicted emotions:")
-            for emotion, score in emotions.items():
-                print(f"  {emotion}: {score:.2f}")
-            print()
+        print("\nTop 3 Predicted Emotions:")
+        for emotion, score in results:
+            print(f"  {emotion}: {score:.2f}")
+        print()

@@ -2,7 +2,11 @@ import streamlit as st
 import numpy as np
 
 from src.predict import predict_emotions
-from src.preprocessing import clean_text
+
+
+# =========================
+# Page config
+# =========================
 
 st.set_page_config(
     page_title="Emotion Classifier",
@@ -11,33 +15,50 @@ st.set_page_config(
 )
 
 st.title("🧠 Emotion Classifier")
+
 st.write(
-    "This model predicts **multiple emotions** from text. "
-    "Emotions may overlap because human feelings are complex."
+    "This model predicts the **top 3 emotions** present in a piece of text. "
+    "Multiple emotions can coexist because human feelings are complex."
 )
+
+
+# =========================
+# Input
+# =========================
 
 text_input = st.text_area(
     "Enter text",
     placeholder="Type something emotional..."
 )
 
+
+# =========================
+# Prediction
+# =========================
+
 if st.button("Analyze Emotion"):
     if not text_input.strip():
         st.warning("Please enter some text.")
     else:
         with st.spinner("Analyzing..."):
-            emotions = predict_emotions(text_input)
+            results = predict_emotions(text_input)
 
-        if not emotions:
-            st.info("No strong emotions detected.")
-        else:
-            st.subheader("Predicted Emotions")
+        st.subheader("Top Predicted Emotions")
 
-            for emotion, score in emotions.items():
-                st.write(f"**{emotion.capitalize()}** — {score:.2f}")
+        # Convert to dict for charting
+        emotion_dict = {}
 
-            # Bar chart
-            st.bar_chart(emotions)
+        for emotion, score in results:
+            st.write(f"**{emotion.capitalize()}** — {score:.2f}")
+            emotion_dict[emotion.capitalize()] = score
+
+        # Bar chart
+        st.bar_chart(emotion_dict)
+
+
+# =========================
+# Footer
+# =========================
 
 st.markdown("---")
 st.caption(
