@@ -1,0 +1,7 @@
+[2025-12-14 11:53:08,518] WARNING - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+[2025-12-14 11:53:08,574] INFO -  Successfully loaded Tokenizer :)
+[2025-12-14 11:53:11,221] WARNING - From C:\Users\Amaegbe\Documents\Projects\venv\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+[2025-12-14 11:53:41,185] INFO - Sequenceses have been padded successfully :)
+[2025-12-14 11:54:08,927] INFO - Sequenceses have been padded successfully :)
+[2025-12-14 11:55:08,760] INFO - Sequenceses have been padded successfully :)
